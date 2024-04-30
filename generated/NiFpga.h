@@ -1,7 +1,7 @@
 /*
- * FPGA Interface C API 23.0 header file.
+ * FPGA Interface C API 24.3 header file.
  *
- * Copyright (c) 2023,
+ * Copyright (c) 2024,
  * National Instruments Corporation.
  * All rights reserved.
  */
@@ -2440,7 +2440,19 @@ typedef enum
     *
     * This property is only Getable and cannot be Set.
     */
-   NiFpga_FifoProperty_ElementsCurrentlyAcquired = 8
+   NiFpga_FifoProperty_ElementsCurrentlyAcquired = 8,
+   /**
+    * PreferredNumaNode
+    * Type: I32
+    * The NUMA node the FIFO should be allocated on.
+    */
+   NiFpga_FifoProperty_PreferredNumaNode = 9,
+   /**
+    * NumberOfZeroCopyRegions
+    * Type: U32
+    * The number of zero copy regions that can be acquired at once.
+    */
+   NiFpga_FifoProperty_NumberOfZeroCopyRegions = 10
 } NiFpga_FifoProperty;
 
 typedef enum
@@ -3564,6 +3576,44 @@ NiFpga_Status NiFpga_AcquireFifoReadElementsDbl(
                                              size_t*        elementsRemaining);
 
 /**
+ * Acquires a zero copy region for reading from a target-to-host FIFO
+ *
+ * Acquiring, reading, and releasing zero copy FIFO regions prevents the need to copy
+ * the contents of elements from the host memory buffer to a separate user-allocated 
+ * buffer. This can be useful when accessing large sections.The FPGA target cannot write to
+ * elements acquired by the host. Therefore the host must release regions after reading them.
+ * The number of elements may differ from the number of elements requested if, for example,
+ * the number of elements requested reaches the end of the host memory buffer. Always release all
+ * acquired regions before closing the session. Do not attempt to access FIFO
+ * regions after the regions are released or the session is closed.
+ *
+ * @param session handle to a currently open session
+ * @param fifo target-to-host FIFO from which to read
+ * @param region points to an opaque type the user will need to release the region
+ * @param elements outputs a pointer to the elements acquired
+ * @param isSigned whether the data is signed or not
+ * @param elementSizeBytes Size in bytes of the data type to read
+ * @param elementsRequested requested number of elements
+ * @param timeout timeout in milliseconds, or NiFpga_InfiniteTimeout
+ * @param elementsAcquired actual number of elements acquired, which may be
+ *                         less than the requested number
+ * @param elementsRemaining if non-NULL, outputs the number of elements
+ *                          remaining in the host memory part of the DMA FIFO
+ * @return result of the call
+ */
+NiFpga_Status NiFpga_AcquireFifoReadRegion(
+                                             NiFpga_Session session,
+                                             uint32_t       fifo,
+                                             void**         region,
+                                             void**         elements,
+                                             NiFpga_Bool    isSigned,
+                                             uint32_t       elementSizeBytes,
+                                             size_t         elementsRequested,
+                                             uint32_t       timeout,
+                                             size_t*        elementsAcquired,
+                                             size_t*        elementsRemaining);
+
+/**
  * @}
  */
 
@@ -3945,6 +3995,45 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsDbl(
                                              size_t*        elementsRemaining);
 
 /**
+ * Acquires a zero copy region for writing to a host-to-target FIFO.
+ *
+ * Acquiring, writing, and releasing FIFO zero copy FIFO regions prevents the need to write
+ * first into a separate user-allocated buffer and then copy the contents of
+ * elements to the host memory buffer. The FPGA target cannot read elements
+ * acquired by the host. Therefore, the host must release regions after
+ * writing to them. The number of elements acquired may differ from the number
+ * of elements requested if, for example, the number of elements requested
+ * reaches the end of the host memory buffer. Always release all acquired
+ * regions before closing the session. Do not attempt to access FIFO elements
+ * after the elements are released or the session is closed.
+ *
+ * @param session handle to a currently open session
+ * @param fifo host-to-target FIFO to which to write
+ * @param region points to an opaque type the user will need to release the region
+ * @param elements outputs a pointer to the elements acquired
+ * @param isSigned whether the data is signed or not
+ * @param elementSizeBytes Size in bytes of the data type to write
+ * @param elementsRequested requested number of elements
+ * @param timeout timeout in milliseconds, or NiFpga_InfiniteTimeout
+ * @param elementsAcquired actual number of elements acquired, which may be
+ *                         less than the requested number
+ * @param elementsRemaining if non-NULL, outputs the number of elements
+ *                          remaining in the host memory part of the DMA FIFO
+ * @return result of the call
+ */
+NiFpga_Status NiFpga_AcquireFifoWriteRegion(
+                                       NiFpga_Session session,
+                                       uint32_t       fifo,
+                                       void**         region,
+                                       void**         elements,
+                                       NiFpga_Bool    isSigned,
+                                       uint32_t       elementSizeBytes,
+                                       size_t         elementsRequested,
+                                       uint32_t       timeout,
+                                       size_t*        elementsAcquired,
+                                       size_t*        elementsRemaining);
+
+/**
  * @}
  */
 
@@ -3968,6 +4057,23 @@ NiFpga_Status NiFpga_AcquireFifoWriteElementsDbl(
 NiFpga_Status NiFpga_ReleaseFifoElements(NiFpga_Session session,
                                          uint32_t       fifo,
                                          size_t         elements);
+
+/**
+ * Releases a previously acquired FIFO region.
+ *
+ * The FPGA target cannot read elements in a region acquired by the host. Therefore, the
+ * host must release regions after acquiring them. Always release all acquired
+ * regions before closing the session. Do not attempt to access FIFO elements
+ * after the elements are released or the session is closed.
+ *
+ * @param session handle to a currently open session
+ * @param fifo FIFO from which to release elements
+ * @param region Points to the region to release
+ * @return result of the call
+ */
+NiFpga_Status NiFpga_ReleaseFifoRegion(NiFpga_Session session,
+                                       uint32_t       fifo,
+                                       void*          region);
 
 /**
  * Gets an endpoint reference to a peer-to-peer FIFO.

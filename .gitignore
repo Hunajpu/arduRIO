@@ -1,3 +1,5 @@
 *.aliases
 *.lvlps
 FPGA Bitfiles
+.vscode/
+.idea/
