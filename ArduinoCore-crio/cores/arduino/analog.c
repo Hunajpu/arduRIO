@@ -6,7 +6,7 @@ void analogWrite(uint8_t pin, int val){
     // Set the cRIO pin
     NiFpga_MergeStatus(&status, NiFpga_WriteU8(session, NiFpga_f_ControlU8_PIN, pin));
     // Set the input value
-    NiFpga_MergeStatus(&status, NiFpga_WriteU8(session, NiFpga_f_ControlU8_PIN, val));
+    NiFpga_MergeStatus(&status, NiFpga_WriteU8(session, NiFpga_f_ControlU8_INPUT, val));
 
     //Enable
     NiFpga_MergeStatus(&status, NiFpga_WriteBool(session, NiFpga_f_ControlBool_ENABLE, NiFpga_True));
