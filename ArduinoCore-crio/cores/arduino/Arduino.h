@@ -118,6 +118,7 @@ void delayMicroseconds(unsigned int us);
 
 void setup(void);
 void loop(void);
+int fpgaErrorManagment(void);
 
 
 #ifdef ARDUINO_MAIN

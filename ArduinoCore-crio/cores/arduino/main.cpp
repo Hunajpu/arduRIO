@@ -46,6 +46,17 @@ void initVariant() {
   }
 }
 
+int fpgaErrorManagment(void){
+  if(NiFpga_IsError(status)){
+    printf("Error %d\n", status);
+    printf("Closing the session...\n");
+    NiFpga_MergeStatus(&status, NiFpga_Close(session, 0));
+    printf("Finalizing..\n");
+    NiFpga_MergeStatus(&status, NiFpga_Finalize());
+    exit(EXIT_FAILURE);
+  }
+}
+
 void setupUSB() __attribute__((weak));
 void setupUSB() { }
 
@@ -54,13 +65,15 @@ int main(void)
 	//init();
 
 	initVariant();
-	
+
 	setup();
     
-	for (;;) {
+	while (NiFpga_IsNotError(status)) {
 		loop();
 	}
-        
-	return 0;
+
+  fpgaErrorManagment();  
+  
+	return EXIT_SUCCESS;
 }
 
