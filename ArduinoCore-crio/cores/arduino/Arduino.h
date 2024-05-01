@@ -31,6 +31,8 @@
 #include <time.h>
 
 #include "NiFpga_f.h"
+extern NiFpga_Session session;
+extern NiFpga_Status status;
 
 #ifdef __cplusplus
 extern "C"{
@@ -117,8 +119,6 @@ void delayMicroseconds(unsigned int us);
 void setup(void);
 void loop(void);
 
-NiFpga_Session session;
-NiFpga_Status status;
 
 #ifdef ARDUINO_MAIN
 #define PA 1
@@ -146,4 +146,4 @@ NiFpga_Status status;
 
 #endif
 
-#include "pins_arduino.h"
+//#include "pins_arduino.h"
