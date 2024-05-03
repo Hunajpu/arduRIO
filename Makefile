@@ -3,34 +3,38 @@ CC = gcc
 CFLAGS = -Wall -I./ArduinoCore-crio/cores/arduino -I./generated
 LDFLAGS = -ldl
 DEPS = ArduinoCore-crio/cores/arduino/Arduino.h generated/NiFpga_f.h generated/NiFpga.h
-OBJ = Blink.o main.o analog.o digital.o wiring.o NiFpga.o
+OBJ = generated/Blink.o generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
 
 # Default rule
-all: Blink
+all: exe copy
 
-# Rule to rename Blink.ino to Blink.cpp
-Blink.cpp: Blink.ino
-	cp Blink.ino Blink.cpp
+# Rule to rename .ino to .cpp
+%.cpp: %.ino
+	cp %< $@
 
-# Rule to compile Blink.cpp to Blink.o
-%.o: %.cpp $(DEPS)
+# Rule to compile .cpp to .o
+generated/%.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 # Rule to compile main.cpp to main.o
-main.o: ArduinoCore-crio/cores/arduino/main.cpp $(DEPS)
+generated/main.o: ArduinoCore-crio/cores/arduino/main.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) -lstdc++
 
 # Rule to compile analog.c, digital.c, and wiring.c to analog.o, digital.o, and wiring.o
-%.o: ArduinoCore-crio/cores/arduino/%.c $(DEPS)
+generated/%.o: ArduinoCore-crio/cores/arduino/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) -lstdc++
 
-NiFpga.o: generated/NiFpga.c $(DEPS)
+generated/NiFpga.o: generated/NiFpga.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-# Rule to link Blink.o, main.o, analog.o, digital.o, and wiring.o to executable Blink
-Blink: $(OBJ)
+# Rule to link .o files to executable
+exe: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) -lstdc++
+
+# Rule to copy .lvbitx to parent folder
+copy:
+	cp generated/*.lvbitx ..
 
 # Rule to clean up
 clean:
-	rm -f *.o Blink Blink.cpp
+	rm -f generated/*.o exe *.cpp
