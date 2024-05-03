@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -I./ArduinoCore-crio/cores/arduino -I./generated
 LDFLAGS = -ldl
 DEPS = ArduinoCore-crio/cores/arduino/Arduino.h generated/NiFpga_f.h generated/NiFpga.h
-OBJ = generated/app.o generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
+OBJ = generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
 
 # Default rule
 all: app copy
@@ -27,8 +27,8 @@ generated/%.o: ArduinoCore-crio/cores/arduino/%.c $(DEPS)
 generated/NiFpga.o: generated/NiFpga.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-# Rule to link .o files to executable Blink
-app: $(OBJ)
+# Rule to link .o files to executable app
+app: $(OBJ) generated/app.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) -lstdc++
 
 # Rule to copy .lvbitx to parent folder
