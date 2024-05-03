@@ -23,14 +23,12 @@
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(0, OUTPUT);
-  printf("Running...\n");
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  printf("loop...\n");
-  digitalWrite(4, 1);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(0, 1);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
-  digitalWrite(4, 0);    // turn the LED off by making the voltage LOW
+  digitalWrite(0, 0);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 }

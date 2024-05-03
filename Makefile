@@ -3,10 +3,10 @@ CC = gcc
 CFLAGS = -Wall -I./ArduinoCore-crio/cores/arduino -I./generated
 LDFLAGS = -ldl
 DEPS = ArduinoCore-crio/cores/arduino/Arduino.h generated/NiFpga_f.h generated/NiFpga.h
-OBJ = generated/Blink.o generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
+OBJ = generated/app.o generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
 
 # Default rule
-all: Blink copy
+all: app copy
 
 # Rule to rename any .ino to .cpp
 %.cpp: %.ino
@@ -28,13 +28,13 @@ generated/NiFpga.o: generated/NiFpga.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 # Rule to link .o files to executable Blink
-Blink: $(OBJ)
+app: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) -lstdc++
 
 # Rule to copy .lvbitx to parent folder
 copy:
-	cp generated/*.lvbitx ..
+	cp generated/*.lvbitx NiFpga_f.lvbitx
 
 # Rule to clean up
 clean:
-	rm -f generated/*.o Blink *.cpp
+	rm -f generated/*.o app *.cpp
