@@ -14,7 +14,7 @@ void analogWrite(uint8_t pin, int val){
 }
 
 int analogRead(uint8_t pin){
-    int16_t* output;
+    int16_t output;
 
     //Set digital operation
     NiFpga_MergeStatus(&status, NiFpga_WriteU16(session, NiFpga_f_ControlU16_OPERATION, ANALOG_OP));
@@ -29,7 +29,7 @@ int analogRead(uint8_t pin){
 
     
     // Get the output value
-    NiFpga_MergeStatus(&status, NiFpga_ReadI16(session, NiFpga_f_IndicatorI16_OUTPUT, output));
+    NiFpga_MergeStatus(&status, NiFpga_ReadI16(session, NiFpga_f_IndicatorI16_OUTPUT, &output));
 
-    return *output;
+    return output;
 }

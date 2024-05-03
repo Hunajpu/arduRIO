@@ -55,6 +55,7 @@ int fpgaErrorManagment(void){
     NiFpga_MergeStatus(&status, NiFpga_Finalize());
     exit(EXIT_FAILURE);
   }
+  return 0;
 }
 
 void setupUSB() __attribute__((weak));

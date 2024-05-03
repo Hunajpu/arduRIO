@@ -3,10 +3,13 @@ CC = gcc
 CFLAGS = -Wall -I./ArduinoCore-crio/cores/arduino -I./generated
 LDFLAGS = -ldl
 DEPS = ArduinoCore-crio/cores/arduino/Arduino.h generated/NiFpga_f.h generated/NiFpga.h
-OBJ = generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
+INOFILE = $(wildcard *.ino)
+BASENAME = $(basename $(INOFILE))
+OBJ = generated/$(BASENAME).o generated/main.o generated/analog.o generated/digital.o generated/wiring.o generated/NiFpga.o
+
 
 # Default rule
-all: app copy
+all: $(BASENAME) copy
 
 # Rule to rename any .ino to .cpp
 %.cpp: %.ino
@@ -28,7 +31,7 @@ generated/NiFpga.o: generated/NiFpga.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 # Rule to link .o files to executable app
-app: $(OBJ) generated/app.o
+$(BASENAME): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) -lstdc++
 
 # Rule to copy .lvbitx to parent folder
@@ -37,4 +40,5 @@ copy:
 
 # Rule to clean up
 clean:
-	rm -f generated/*.o app *.cpp
+	rm -f generated/*.o $(BASENAME) *.cpp
+

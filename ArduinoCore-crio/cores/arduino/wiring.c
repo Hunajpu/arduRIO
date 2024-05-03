@@ -9,16 +9,16 @@ void delayMicroseconds(unsigned int us){
 }
 
 unsigned long millis(void){
-    struct timespec* tp;
+    struct timespec tp;
 
-    clock_gettime(CLOCK_MONOTONIC, tp);
+    clock_gettime(CLOCK_MONOTONIC, &tp);
 
-    return tp->tv_nsec/1000000;
+    return tp.tv_nsec/1000000;
 }
 unsigned long micros(void){
-    struct timespec* tp;
+    struct timespec tp;
 
-    clock_gettime(CLOCK_MONOTONIC, tp);
+    clock_gettime(CLOCK_MONOTONIC, &tp);
 
-    return tp->tv_nsec/1000;
+    return tp.tv_nsec/1000;
 }
